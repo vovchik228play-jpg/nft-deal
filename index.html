@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#11121a">
+<title>NFT Deal</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#101119;--panel:#1a1c29;--muted:#9297ad;--accent:#8b5cf6;--line:#2b2e40}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#24203b 0,#101119 55%);color:#f7f7fb;font:16px system-ui,-apple-system,sans-serif}
+.wrap{max-width:520px;margin:auto;padding:18px 16px 100px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0 22px}.brand{font-size:23px;font-weight:850;letter-spacing:-.5px}.balance{background:#242638;border:1px solid #383b50;border-radius:14px;padding:10px 12px;font-weight:700}.muted{color:var(--muted);font-size:13px}.hero{padding:20px;border:1px solid #37304e;border-radius:22px;background:linear-gradient(135deg,#292143,#1b1d2a 75%);margin-bottom:20px}.hero h1{margin:0 0 8px;font-size:25px}.hero p{margin:0;color:#c2c3d3;line-height:1.45}.section-title{font-size:18px;font-weight:800;margin:22px 0 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:15px;min-height:142px;text-align:left;color:inherit}.icon{font-size:35px;display:block;margin-bottom:10px}.card b{display:block;margin-bottom:4px}.card small{color:var(--muted)}.action{width:100%;border:0;border-radius:14px;background:var(--accent);color:white;font-size:16px;font-weight:800;padding:14px;margin-top:14px}.panel{padding:17px;border-radius:18px;background:var(--panel);border:1px solid var(--line);margin-top:12px}.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;background:#141520ee;backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:10px max(8px,env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom));gap:4px}.tabs button{flex:1;max-width:130px;background:transparent;border:0;color:#aeb1c4;padding:9px 3px;border-radius:12px;font-size:12px}.tabs button.active{background:#30264b;color:#fff}.hidden{display:none}.notice{font-size:12px;color:#9fa3b9;line-height:1.45;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">✨ NFT Deal</div><div class="balance">⭐ <span id="balance">1000</span><div class="muted">игровых очков</div></div></div>
+  <main id="mainView">
+    <div class="hero"><h1>Твоя коллекция начинается здесь</h1><p>Открывай кейсы, собирай виртуальные подарки и играй с друзьями.</p><button class="action" onclick="openPage('cases')">Открыть кейсы</button></div>
+    <div class="section-title">Популярное</div>
+    <div class="grid">
+      <button class="card" onclick="openPage('cases')"><span class="icon">🎁</span><b>Кейсы</b><small>Виртуальные подарки</small></button>
+      <button class="card" onclick="openPage('games')"><span class="icon">🚀</span><b>Игры</b><small>Общий раунд с друзьями</small></button>
+      <button class="card" onclick="openPage('collection')"><span class="icon">🗂️</span><b>Коллекция</b><small>Твои находки</small></button>
+      <button class="card" onclick="openPage('profile')"><span class="icon">👤</span><b>Профиль</b><small>Статистика игрока</small></button>
+    </div>
+    <p class="notice">Это демонстрационная игра. Очки виртуальные, не являются Telegram Stars, не переводятся другим пользователям и не обмениваются на деньги.</p>
+  </main>
+  <main id="casesView" class="hidden">
+    <div class="section-title">🎁 Кейсы</div>
+    <div class="grid">
+      <button class="card" onclick="openCase('Стартовый кейс',100,'📦')"><span class="icon">📦</span><b>Стартовый</b><small>100 очков</small></button>
+      <button class="card" onclick="openCase('Праздничный кейс',250,'🎂')"><span class="icon">🎂</span><b>Праздничный</b><small>250 очков</small></button>
+      <button class="card" onclick="openCase('Премиум-кейс',500,'🏆')"><span class="icon">🏆</span><b>Премиум</b><small>500 очков</small></button>
+      <button class="card" onclick="openCase('Сердце-кейс',75,'💝')"><span class="icon">💝</span><b>Сердце</b><small>75 очков</small></button>
+    </div>
+    <div id="caseResult" class="panel hidden"></div>
+  </main>
+  <main id="gamesView" class="hidden">
+    <div class="section-title">🚀 Ракетка</div>
+    <div class="panel"><div class="muted">Демо-раунд</div><h1 id="multiplier">1.00×</h1><p id="rocketStatus">Раунд ещё не запущен.</p><button class="action" onclick="startRound()">Запустить демо-раунд</button><button class="action" style="background:#24896b" onclick="cashOut()">Забрать очки</button><p class="muted">Пока это локальная демонстрация на одном устройстве. Общая синхронизация между игроками добавляется на серверном этапе.</p></div>
+  </main>
+  <main id="collectionView" class="hidden">
+    <div class="section-title">🗂️ Коллекция</div><div id="collection" class="panel">Пока коллекция пуста. Открой кейс, чтобы получить виртуальный предмет.</div>
+  </main>
+  <main id="profileView" class="hidden">
+    <div class="section-title">👤 Профиль</div><div class="panel"><b id="playerName">Игрок</b><p class="muted">NFT Deal • демо-профиль</p><p>Баланс: ⭐ <span id="profileBalance">1000</span> игровых очков</p><p>Предметов в коллекции: <span id="itemCount">0</span></p></div>
+  </main>
+</div>
+<nav class="tabs">
+<button class="active" data-page="main" onclick="openPage('main')">🏠<br>Главная</button>
+<button data-page="cases" onclick="openPage('cases')">🎁<br>Кейсы</button>
+<button data-page="games" onclick="openPage('games')">🚀<br>Игры</button>
+<button data-page="collection" onclick="openPage('collection')">🗂️<br>Коллекция</button>
+<button data-page="profile" onclick="openPage('profile')">👤<br>Профиль</button>
+</nav>
+<script>
+const tg = window.Telegram?.WebApp;
+tg?.ready(); tg?.expand();
+let balance=1000, items=[], roundTimer=null, running=false, cashed=false, multiplier=1;
+const userId = tg?.initDataUnsafe?.user?.id || 0;
+const username = tg?.initDataUnsafe?.user?.first_name || "Игрок";
+document.getElementById('playerName').textContent=username;
+function sync(){
+ document.getElementById('balance').textContent=balance;
+ document.getElementById('profileBalance').textContent=balance;
+ document.getElementById('itemCount').textContent=items.length;
+ document.getElementById('collection').textContent=items.length?items.map(x=>x.icon+' '+x.name).join(' • '):'Пока коллекция пуста. Открой кейс, чтобы получить виртуальный предмет.';
+}
+function eventPing(event){
+ if(!userId) return;
+ fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,event})}).catch(()=>{});
+}
+eventPing('open'); setInterval(()=>eventPing('heartbeat'),30000);
+function openPage(page){
+ ['main','cases','games','collection','profile'].forEach(p=>document.getElementById(p+'View').classList.toggle('hidden',p!==page));
+ document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+}
+function openCase(name,cost,icon){
+ const out=document.getElementById('caseResult'); out.classList.remove('hidden');
+ if(balance<cost){out.textContent='Недостаточно игровых очков.';return;}
+ balance-=cost;
+ const gifts=[{name:'Коробка',icon:'📦',tier:'Обычный'},{name:'Торт',icon:'🎂',tier:'Обычный'},{name:'Трофей',icon:'🏆',tier:'Редкий'},{name:'Мишка',icon:'🧸',tier:'Обычный'},{name:'Сердце',icon:'💝',tier:'Редкий'},{name:'Звёздный подарок',icon:'🌟',tier:'Эпический'}];
+ const item=gifts[Math.floor(Math.random()*gifts.length)]; items.push(item);
+ out.innerHTML='<b>'+name+'</b><p>Выпало: '+item.icon+' '+item.name+'</p><small>Редкость: '+item.tier+'</small>';
+ sync();
+}
+function startRound(){
+ if(running)return;
+ running=true;cashed=false;multiplier=1;
+ document.getElementById('rocketStatus').textContent='Ракетка летит! Забери очки до завершения демо-раунда.';
+ const started=Date.now();
+ roundTimer=setInterval(()=>{
+  multiplier=1+Math.pow((Date.now()-started)/1000,1.22)*0.16;
+  document.getElementById('multiplier').textContent=multiplier.toFixed(2)+'×';
+  if(multiplier>=3.5){clearInterval(roundTimer);running=false;document.getElementById('rocketStatus').textContent=cashed?'Очки забраны. Раунд завершён.':'Раунд завершён. В демо-режиме ставка не списывалась.';}
+ },100);
+}
+function cashOut(){
+ if(!running){document.getElementById('rocketStatus').textContent='Сначала запусти демо-раунд.';return;}
+ if(cashed){document.getElementById('rocketStatus').textContent='В этом раунде очки уже забраны.';return;}
+ cashed=true;document.getElementById('rocketStatus').textContent='Забрано на '+multiplier.toFixed(2)+'×. Это только демонстрация.';
+}
+sync();
+</script>
+</body>
+</html>
